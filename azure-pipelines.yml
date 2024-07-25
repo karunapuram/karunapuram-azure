@@ -1,0 +1,65 @@
+name: CI/CD Pipeline
+
+trigger:
+  branches:
+    include:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r function/requirements.txt
+
+      - name: Lint code
+        run: |
+          pip install flake8
+          flake8 function
+
+      - name: Run tests
+        run: |
+          pip install pytest
+          pytest function
+
+      - name: Security scan
+        run: |
+          pip install bandit
+          bandit -r function
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      - name: Deploy to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Function App
+        run: |
+          az functionapp deployment source config-zip --resource-group example-resources --name example-functionapp --src function/function.zip
