@@ -2,7 +2,7 @@
 
 ## Files and Their Purpose
 
-- **Dockerfile**: Contains instructions to build the Docker image with security best practices.
+- **Dockerfile is in README PART 1**: Contains instructions to build the Docker image with security best practices.
 - **main.tf**: Terraform script for setting up Azure resources, including a resource group, storage account, service plan, and function app.
 - **azure-pipelines.yml**: GitHub Actions workflow for CI/CD pipeline, including steps for building, testing, security scanning, and deploying the application.
 - **function/__init__.py**: Python function code for the Azure Function App.
